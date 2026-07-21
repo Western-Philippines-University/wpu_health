@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../includes/wpu_security.php';
+wpu_bootstrap_admin_api();
 /**
  * Admin Chat API - Private Messaging System
  * Handles 1-on-1 chat between admin, health, and dental administrators

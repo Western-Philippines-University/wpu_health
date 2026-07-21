@@ -49,7 +49,6 @@ if (! function_exists('wpu_his_diagnosis_preview')) {
     <div id="dental-records-tab" class="cr-tab-panel" role="tabpanel" aria-labelledby="hd-tab-dental-btn"
          <?php echo $records_tab !== 'dental' ? 'hidden' : ''; ?>>
         <div class="cr-intro cr-intro--dental">
-            <p>Dental clinic patient visits — search by name, open full records, or add new entries.</p>
             <span class="cr-count-pill"><?php echo number_format((int) $dental_total); ?> total</span>
         </div>
         <div class="cr-toolbar">

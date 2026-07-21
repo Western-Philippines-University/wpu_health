@@ -1,19 +1,6 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-if (! isset($_SESSION['admin_username']) && function_exists('auth') && auth()->guard('admin')->check()) {
-    $_SESSION['admin_username'] = auth()->guard('admin')->user()->username;
-}
-
-// Check if user is logged in
-if (! isset($_SESSION['admin_username'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
-    exit;
-}
-
+require_once __DIR__ . '/../../includes/wpu_security.php';
+wpu_bootstrap_admin_api();
 // Database connection - Using unified database
 require_once '../../config/database.php';
 require_once __DIR__ . '/patient_record_quick_view_lib.php';

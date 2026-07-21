@@ -1,17 +1,6 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-if (! isset($_SESSION['admin_username']) && function_exists('auth') && auth()->guard('admin')->check()) {
-    $_SESSION['admin_username'] = auth()->guard('admin')->user()->username;
-}
-
-// Check if user is logged in
-if (! isset($_SESSION['admin_username'])) {
-    header('Location: '.(function_exists('url') ? url('/admin/login') : 'admin.php'));
-    exit;
-}
+require_once __DIR__ . '/../includes/wpu_security.php';
+wpu_bootstrap_admin_page();
 
 // Database connection
 require_once '../config/database.php';

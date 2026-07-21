@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__.'/wpu_reference_data.php';
+require_once __DIR__.'/wpu_security.php';
 
 $enabled = 0;
 $timeout = 300000;
@@ -82,9 +83,9 @@ $needsRecordData = in_array($page, $recordPages, true);
 if ($needsCertData) {
     $cert_page = max(1, isset($_GET['cert_page']) ? (int) $_GET['cert_page'] : 1);
     $ref_page = max(1, isset($_GET['ref_page']) ? (int) $_GET['ref_page'] : 1);
-    $cert_search = isset($_GET['cert_search']) ? $conn->real_escape_string($_GET['cert_search']) : '';
-    $ref_search = isset($_GET['ref_search']) ? $conn->real_escape_string($_GET['ref_search']) : '';
-    $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+    $cert_search = isset($_GET['cert_search']) ? wpu_sanitize_search_term((string) $_GET['cert_search']) : '';
+    $ref_search = isset($_GET['ref_search']) ? wpu_sanitize_search_term((string) $_GET['ref_search']) : '';
+    $search = isset($_GET['search']) ? wpu_sanitize_search_term((string) $_GET['search']) : '';
     if ($active_tab === 'certificates' && $cert_search === '' && $search !== '') {
         $cert_search = $search;
     }
@@ -112,8 +113,11 @@ if ($needsCertData) {
              LIMIT 5'
         );
     } else {
-        $cert_count_query = "SELECT COUNT(*) AS total FROM medical_certificates WHERE name LIKE '%{$cert_search}%'";
-        $cert_count_result = $conn->query($cert_count_query);
+        $certLike = '%'.$cert_search.'%';
+        $certCountStmt = $conn->prepare('SELECT COUNT(*) AS total FROM medical_certificates WHERE name LIKE ?');
+        $certCountStmt->bind_param('s', $certLike);
+        $certCountStmt->execute();
+        $cert_count_result = $certCountStmt->get_result();
         $cert_total = $cert_count_result ? (int) $cert_count_result->fetch_assoc()['total'] : 0;
         $cert_total_pages = $cert_total > 0 ? (int) ceil($cert_total / $cert_ref_items_per_page) : 0;
         if ($cert_total_pages > 0) {
@@ -121,14 +125,16 @@ if ($needsCertData) {
         }
         $cert_offset = ($cert_page - 1) * $cert_ref_items_per_page;
 
-        $certificates_query = "SELECT * FROM medical_certificates
-                               WHERE name LIKE '%{$cert_search}%'
-                               ORDER BY created_at DESC
-                               LIMIT {$cert_ref_items_per_page} OFFSET {$cert_offset}";
-        $certificates_result = $conn->query($certificates_query);
+        $certListStmt = $conn->prepare('SELECT * FROM medical_certificates WHERE name LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?');
+        $certListStmt->bind_param('sii', $certLike, $cert_ref_items_per_page, $cert_offset);
+        $certListStmt->execute();
+        $certificates_result = $certListStmt->get_result();
 
-        $ref_count_query = "SELECT COUNT(*) AS total FROM referrals WHERE patient_name LIKE '%{$ref_search}%'";
-        $ref_count_result = $conn->query($ref_count_query);
+        $refLike = '%'.$ref_search.'%';
+        $refCountStmt = $conn->prepare('SELECT COUNT(*) AS total FROM referrals WHERE patient_name LIKE ?');
+        $refCountStmt->bind_param('s', $refLike);
+        $refCountStmt->execute();
+        $ref_count_result = $refCountStmt->get_result();
         $ref_total = $ref_count_result ? (int) $ref_count_result->fetch_assoc()['total'] : 0;
         $ref_total_pages = $ref_total > 0 ? (int) ceil($ref_total / $cert_ref_items_per_page) : 0;
         if ($ref_total_pages > 0) {
@@ -136,24 +142,23 @@ if ($needsCertData) {
         }
         $ref_offset = ($ref_page - 1) * $cert_ref_items_per_page;
 
-        $referrals_query = "SELECT * FROM referrals
-                            WHERE patient_name LIKE '%{$ref_search}%'
-                            ORDER BY created_at DESC
-                            LIMIT {$cert_ref_items_per_page} OFFSET {$ref_offset}";
-        $referrals_result = $conn->query($referrals_query);
+        $refListStmt = $conn->prepare('SELECT * FROM referrals WHERE patient_name LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?');
+        $refListStmt->bind_param('sii', $refLike, $cert_ref_items_per_page, $ref_offset);
+        $refListStmt->execute();
+        $referrals_result = $refListStmt->get_result();
     }
 }
 
 if ($needsRecordData) {
     $dental_page = max(1, isset($_GET['dental_page']) ? (int) $_GET['dental_page'] : 1);
-    $dental_search = isset($_GET['dental_search']) ? $conn->real_escape_string($_GET['dental_search']) : '';
-    $search_records = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+    $dental_search = isset($_GET['dental_search']) ? wpu_sanitize_search_term((string) $_GET['dental_search']) : '';
+    $search_records = isset($_GET['search']) ? wpu_sanitize_search_term((string) $_GET['search']) : '';
     if ($records_tab === 'dental' && $dental_search === '' && $search_records !== '') {
         $dental_search = $search_records;
     }
 
     $health_page = max(1, isset($_GET['health_page']) ? (int) $_GET['health_page'] : 1);
-    $health_search = isset($_GET['health_search']) ? $conn->real_escape_string($_GET['health_search']) : '';
+    $health_search = isset($_GET['health_search']) ? wpu_sanitize_search_term((string) $_GET['health_search']) : '';
     if ($records_tab === 'health' && $health_search === '' && $search_records !== '') {
         $health_search = $search_records;
     }
@@ -178,9 +183,11 @@ if ($needsRecordData) {
             $recordSelect." WHERE pr.module_type = 'health' ORDER BY pr.created_at DESC LIMIT 2"
         );
     } else {
-        $dental_count_query = "SELECT COUNT(*) AS total FROM patient_records
-                               WHERE module_type = 'dental' AND full_name LIKE '%{$dental_search}%'";
-        $dental_count_result = $conn->query($dental_count_query);
+        $dentalLike = '%'.$dental_search.'%';
+        $dentalCountStmt = $conn->prepare("SELECT COUNT(*) AS total FROM patient_records WHERE module_type = 'dental' AND full_name LIKE ?");
+        $dentalCountStmt->bind_param('s', $dentalLike);
+        $dentalCountStmt->execute();
+        $dental_count_result = $dentalCountStmt->get_result();
         $dental_total = $dental_count_result ? (int) $dental_count_result->fetch_assoc()['total'] : 0;
         $dental_total_pages = $dental_total > 0 ? (int) ceil($dental_total / $health_dental_items_per_page) : 0;
         if ($dental_total_pages > 0) {
@@ -188,15 +195,16 @@ if ($needsRecordData) {
         }
         $dental_offset = ($dental_page - 1) * $health_dental_items_per_page;
 
-        $dental_query = $recordSelect."
-                        WHERE pr.module_type = 'dental' AND pr.full_name LIKE '%{$dental_search}%'
-                        ORDER BY pr.created_at DESC
-                        LIMIT {$health_dental_items_per_page} OFFSET {$dental_offset}";
-        $dental_result = $conn->query($dental_query);
+        $dentalListStmt = $conn->prepare($recordSelect." WHERE pr.module_type = 'dental' AND pr.full_name LIKE ? ORDER BY pr.created_at DESC LIMIT ? OFFSET ?");
+        $dentalListStmt->bind_param('sii', $dentalLike, $health_dental_items_per_page, $dental_offset);
+        $dentalListStmt->execute();
+        $dental_result = $dentalListStmt->get_result();
 
-        $health_count_query = "SELECT COUNT(*) AS total FROM patient_records
-                               WHERE module_type = 'health' AND full_name LIKE '%{$health_search}%'";
-        $health_count_result = $conn->query($health_count_query);
+        $healthLike = '%'.$health_search.'%';
+        $healthCountStmt = $conn->prepare("SELECT COUNT(*) AS total FROM patient_records WHERE module_type = 'health' AND full_name LIKE ?");
+        $healthCountStmt->bind_param('s', $healthLike);
+        $healthCountStmt->execute();
+        $health_count_result = $healthCountStmt->get_result();
         $health_total = $health_count_result ? (int) $health_count_result->fetch_assoc()['total'] : 0;
         $health_total_pages = $health_total > 0 ? (int) ceil($health_total / $health_dental_items_per_page) : 0;
         if ($health_total_pages > 0) {
@@ -204,10 +212,9 @@ if ($needsRecordData) {
         }
         $health_offset = ($health_page - 1) * $health_dental_items_per_page;
 
-        $health_query = $recordSelect."
-                        WHERE pr.module_type = 'health' AND pr.full_name LIKE '%{$health_search}%'
-                        ORDER BY pr.created_at DESC
-                        LIMIT {$health_dental_items_per_page} OFFSET {$health_offset}";
-        $health_result = $conn->query($health_query);
+        $healthListStmt = $conn->prepare($recordSelect." WHERE pr.module_type = 'health' AND pr.full_name LIKE ? ORDER BY pr.created_at DESC LIMIT ? OFFSET ?");
+        $healthListStmt->bind_param('sii', $healthLike, $health_dental_items_per_page, $health_offset);
+        $healthListStmt->execute();
+        $health_result = $healthListStmt->get_result();
     }
 }

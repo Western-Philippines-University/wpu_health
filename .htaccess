@@ -14,6 +14,13 @@
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
+    # Block direct access to environment and dependency manifests
+    RewriteRule ^\.env - [F,L]
+    RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json)$ - [F,L]
+
+    # Legacy portal asset URLs → static files (avoid Laravel 500/HTML responses).
+    RewriteRule ^portal/assets/(.*)$ unified_portal/assets/$1 [L]
+
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     # Let unified_portal handle its own extensionless *.php routing (unified_portal/.htaccess).

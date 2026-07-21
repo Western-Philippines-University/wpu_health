@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../includes/wpu_security.php';
+wpu_bootstrap_admin_api();
 
 declare(strict_types=1);
 

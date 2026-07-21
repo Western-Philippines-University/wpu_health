@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../includes/wpu_security.php';
+wpu_bootstrap_admin_api();
 /**
  * Referral Processing Script
  * Handles creation and updates of medical referrals

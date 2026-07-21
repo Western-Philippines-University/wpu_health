@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../includes/wpu_security.php';
+wpu_bootstrap_admin_api();
 require_once '../config/connect.php';
 require_once '../includes/wpu_cache.php';
 

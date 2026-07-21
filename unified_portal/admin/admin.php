@@ -1,7 +1,7 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once __DIR__.'/../includes/wpu_security.php';
+wpu_secure_session_start();
+wpu_send_security_headers();
 
 if (defined('WPU_LARAVEL_ADMIN_USER') && WPU_LARAVEL_ADMIN_USER !== '') {
     $_SESSION['admin_username'] = WPU_LARAVEL_ADMIN_USER;
@@ -22,9 +22,7 @@ $wpu_public_portal_href = (defined('WPU_PORTAL_INDEX_URL') && WPU_PORTAL_INDEX_U
     : '/portal/index.php';
 
 // Generate CSRF token for form protection
-if (!isset($_SESSION['form_token'])) {
-    $_SESSION['form_token'] = bin2hex(random_bytes(32));
-}
+wpu_ensure_csrf_token();
 
 // ===== HELPER FUNCTIONS =====
 function calculateDuration($start, $end) {
@@ -103,27 +101,52 @@ $current_user = $_SESSION['admin_username'] ?? '';
 /* --------------------- LOGIN --------------------- */
 if ((! defined('WPU_LARAVEL_BRIDGE') || ! WPU_LARAVEL_BRIDGE)
     && $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'login') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-
-    $stmt = $pdo->prepare("SELECT * FROM admins WHERE username = ?");
-    $stmt->execute([$username]);
-    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($admin && ($password === $admin['password'] || password_verify($password, $admin['password']))) {
-        $_SESSION['admin_username'] = $username;
-        $_SESSION['login_time'] = date('Y-m-d H:i:s');
-        
-        $login_time = $_SESSION['login_time'];
-        $stmt = $pdo->prepare("INSERT INTO user_logs (username, activity_type, login_time, status)
-                               VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, 'login', $login_time, 'Logged In']);
-        
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
+    if (! wpu_rate_limit('legacy_admin_login', 8, 60)) {
+        $login_error = 'Too many login attempts. Please wait and try again.';
+    } elseif (! wpu_verify_csrf_request(false)) {
+        wpu_security_audit($pdo, 'csrf_failure', 'legacy login');
+        $login_error = 'Invalid security token. Refresh the page and try again.';
     } else {
-        $login_error = "Invalid username or password.";
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+
+        if ($username === '' || $password === '') {
+            $login_error = 'Invalid username or password.';
+            wpu_record_login_attempt($pdo, $username ?: 'unknown', false);
+        } elseif (wpu_is_account_locked($pdo, $username)) {
+            $login_error = 'Account temporarily locked due to too many failed attempts. Try again later.';
+        } else {
+            $stmt = $pdo->prepare('SELECT * FROM admins WHERE username = ?');
+            $stmt->execute([$username]);
+            $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($admin && wpu_verify_admin_password($pdo, $admin, $password)) {
+                wpu_record_login_attempt($pdo, $username, true);
+                session_regenerate_id(true);
+                $_SESSION['admin_username'] = $username;
+                $_SESSION['login_time'] = date('Y-m-d H:i:s');
+                $_SESSION['_wpu_session_created'] = time();
+                $_SESSION['_wpu_session_fingerprint'] = wpu_session_fingerprint();
+                wpu_rotate_csrf_token();
+
+                $login_time = $_SESSION['login_time'];
+                $stmt = $pdo->prepare('INSERT INTO user_logs (username, activity_type, login_time, status)
+                                       VALUES (?, ?, ?, ?)');
+                $stmt->execute([$username, 'login', $login_time, 'Logged In']);
+                wpu_security_audit($pdo, 'login_success', 'Legacy admin login');
+
+                header('Location: '.$_SERVER['PHP_SELF']);
+                exit;
+            }
+
+            wpu_record_login_attempt($pdo, $username, false);
+            $login_error = 'Invalid username or password.';
+        }
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] !== 'login') {
+    wpu_abort_if_invalid_csrf();
 }
 
 /* --------------------- LOGOUT --------------------- */
@@ -173,9 +196,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         $stmt->execute([$current_user]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($admin && ($password === $admin['password'] || password_verify($password, $admin['password']))) {
+        if ($admin && wpu_verify_admin_password($pdo, $admin, $password)) {
             unset($_SESSION['locked']);
             session_regenerate_id(true);
+            wpu_rotate_csrf_token();
             header('Location: ' . $_SERVER['PHP_SELF']);
             exit;
         } else {
@@ -237,18 +261,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $stmt->execute(['u' => $_SESSION['admin_username']]);
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$admin || !password_verify($current, $admin['password'])) {
+    if (!$admin || !wpu_verify_admin_password($pdo, $admin, $current)) {
         $error_message = "Current password incorrect";
+    } elseif ($policyError = wpu_validate_password_policy($new)) {
+        $error_message = $policyError;
+    } elseif (!wpu_check_password_history($pdo, (int) $admin['id'], $new)) {
+        $error_message = "Cannot reuse a recent password";
     } elseif ($new !== $confirm) {
         $error_message = "Passwords do not match";
     } else {
-        $stmt = $pdo->prepare("UPDATE admins SET password = :p WHERE username = :u");
+        wpu_store_password_history($pdo, (int) $admin['id'], (string) $admin['password']);
+        $newHash = wpu_hash_new_password($new);
+        $stmt = $pdo->prepare("UPDATE admins SET password = :p, password_changed_at = NOW() WHERE username = :u");
         $stmt->execute([
-            'p' => password_hash($new, PASSWORD_DEFAULT),
+            'p' => $newHash,
             'u' => $_SESSION['admin_username']
         ]);
+        wpu_rotate_csrf_token();
         $success_message = "Password updated successfully";
         wpu_insert_activity_log($pdo, $_SESSION['admin_username'], 'Password changed', 'Own account');
+        wpu_security_audit($pdo, 'password_changed', 'Self-service password change');
     }
 }
 
@@ -262,17 +294,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->execute([$username]);
         if ($stmt->fetchColumn() > 0) {
             $error_message = "Username already exists";
+        } elseif ($policyError = wpu_validate_password_policy($password)) {
+            $error_message = $policyError;
         } else {
-            $stmt = $pdo->prepare("INSERT INTO admins (username, password) VALUES (?, ?)");
-            $stmt->execute([$username, password_hash($password, PASSWORD_DEFAULT)]);
+            $stmt = $pdo->prepare("INSERT INTO admins (username, password, password_changed_at) VALUES (?, ?, NOW())");
+            $stmt->execute([$username, wpu_hash_new_password($password)]);
             $success_message = "Admin added successfully";
             wpu_insert_activity_log($pdo, $current_user, 'Admin account created', 'New username: '.$username);
+            wpu_security_audit($pdo, 'admin_created', 'Username: '.$username);
         }
     } elseif (isset($_POST['update'])) {
-        $stmt = $pdo->prepare("UPDATE admins SET password = ? WHERE username = ?");
-        $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $current_user]);
-        $success_message = "Admin updated successfully";
-        wpu_insert_activity_log($pdo, $current_user, 'Admin password updated', 'Own account');
+        if ($policyError = wpu_validate_password_policy($password)) {
+            $error_message = $policyError;
+        } else {
+            $stmt = $pdo->prepare("SELECT id, password FROM admins WHERE username = ?");
+            $stmt->execute([$current_user]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($existing && !wpu_check_password_history($pdo, (int) $existing['id'], $password)) {
+                $error_message = "Cannot reuse a recent password";
+            } else {
+                if ($existing) {
+                    wpu_store_password_history($pdo, (int) $existing['id'], (string) $existing['password']);
+                }
+                $stmt = $pdo->prepare("UPDATE admins SET password = ?, password_changed_at = NOW() WHERE username = ?");
+                $stmt->execute([wpu_hash_new_password($password), $current_user]);
+                $success_message = "Admin updated successfully";
+                wpu_insert_activity_log($pdo, $current_user, 'Admin password updated', 'Own account');
+            }
+        }
     }
 }
 
@@ -366,16 +415,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         $max_size = 5 * 1024 * 1024; // 5MB
         
-        $file_name = $_FILES['file']['name'];
-        $file_tmp = $_FILES['file']['tmp_name'];
-        $file_size = $_FILES['file']['size'];
-        $file_type = $_FILES['file']['type'];
-        
-        if (!in_array($file_type, $allowed_types)) {
-            $response['message'] = 'Invalid file type. Allowed: JPG, PNG, GIF, PDF, TXT, DOC, DOCX';
-        } elseif ($file_size > $max_size) {
-            $response['message'] = 'File too large. Maximum size: 5MB';
+        $validation = wpu_validate_uploaded_file($_FILES['file'], $max_size);
+        if (!$validation['ok']) {
+            $response['message'] = $validation['message'];
         } else {
+            $file_name = wpu_random_upload_filename($validation['extension']);
+            $display_name = basename((string) $_FILES['file']['name']);
+            $file_tmp = $_FILES['file']['tmp_name'];
+            $file_size = (int) $_FILES['file']['size'];
+            $file_type = $validation['mime'];
             // Read file content
             $file_content = file_get_contents($file_tmp);
             
@@ -386,12 +434,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     $pdo,
                     (string) ($_SESSION['admin_username'] ?? ''),
                     'Patient file uploaded',
-                    'Record ID: '.$patient_record_id.', file: '.$file_name
+                    'Record ID: '.$patient_record_id.', file: '.$display_name
                 );
                 $response['success'] = true;
                 $response['message'] = 'File uploaded successfully!';
             } catch (PDOException $e) {
-                $response['message'] = 'Database error: ' . $e->getMessage();
+                error_log('[WPU Upload] '.$e->getMessage());
+                $response['message'] = 'Upload failed. Please try again.';
             }
         }
     } else {
@@ -413,7 +462,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'view_file' && isset($_GET['fi
         
         if ($file) {
             header('Content-Type: ' . $file['file_type']);
-            header('Content-Disposition: inline; filename="' . $file['file_name'] . '"');
+            header('Content-Disposition: inline; filename="'.wpu_safe_download_filename((string) $file['file_name']).'"');
             header('Content-Length: ' . strlen($file['file_content']));
             echo $file['file_content'];
             exit;
@@ -423,8 +472,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'view_file' && isset($_GET['fi
             exit;
         }
     } catch (PDOException $e) {
+        error_log('[WPU File View] '.$e->getMessage());
         header('HTTP/1.0 500 Internal Server Error');
-        echo 'Error: ' . $e->getMessage();
+        echo 'Unable to retrieve file';
         exit;
     }
 }
@@ -473,8 +523,10 @@ require_once '../includes/wpu_page_data.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if (function_exists('csrf_token')): ?>
-    <meta name="csrf-token" content="<?php echo htmlspecialchars((string) csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+    <?php
+    $wpu_csrf_meta = function_exists('csrf_token') ? (string) csrf_token() : wpu_ensure_csrf_token();
+    ?>
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($wpu_csrf_meta, ENT_QUOTES, 'UTF-8'); ?>">
     <script>
     (function () {
         var m = document.querySelector('meta[name="csrf-token"]');
@@ -501,12 +553,11 @@ require_once '../includes/wpu_page_data.php';
         };
     })();
     </script>
-    <?php endif; ?>
     <title>WPU Medical - Admin Panel</title>
     <?php
-    // Absolute asset base so CSS/JS resolve under Laravel /admin/workspace/* and direct /unified_portal/*
+    // Absolute asset base: serve from unified_portal/assets via Apache (not Laravel /portal/assets).
     if (defined('WPU_LARAVEL_BRIDGE') && WPU_LARAVEL_BRIDGE && function_exists('url')) {
-        $his_assets = rtrim(url('/portal/assets'), '/');
+        $his_assets = rtrim(url('/unified_portal/assets'), '/');
     } else {
         $his_assets = '../assets';
     }
@@ -625,6 +676,7 @@ header.admin-topbar {
         <div class="login-screen">
             <form method="POST" class="login-form" autocomplete="on">
                 <input type="hidden" name="action" value="login">
+                <input type="hidden" name="form_token" value="<?php echo htmlspecialchars(wpu_ensure_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="login-brand">
                     <img src="<?php echo htmlspecialchars($his_assets, ENT_QUOTES, 'UTF-8'); ?>/images/logo.png" alt="WPU Medical">
                     <div class="sub">Hospital Information System</div>

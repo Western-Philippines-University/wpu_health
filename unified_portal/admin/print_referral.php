@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../includes/wpu_security.php';
+wpu_bootstrap_admin_page();
 require '../config/connect.php';
 
 // Get the stored referral code

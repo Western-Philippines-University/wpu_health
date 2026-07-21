@@ -1566,8 +1566,27 @@ textarea:focus,
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
   margin: 16px 0;
+}
+
+.cr-search-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: min(100%, 280px);
+}
+
+.cr-search-row .form-control {
+  flex: 1;
+  min-width: 120px;
+}
+
+.cr-search-row .cr-search-hint {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .search-box {

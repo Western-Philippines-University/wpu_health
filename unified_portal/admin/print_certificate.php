@@ -1,12 +1,17 @@
 <?php
+require_once __DIR__ . '/../includes/wpu_security.php';
+wpu_bootstrap_admin_page();
 require_once '../config/connect.php';
 
 // Get ID from URL
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // Fetch certificate data
-$query = "SELECT * FROM medical_certificates WHERE id = $id";
-$result = $conn->query($query);
+$query = 'SELECT * FROM medical_certificates WHERE id = ?';
+$stmt = $conn->prepare($query);
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$result = $stmt->get_result();
 $cert = $result->fetch_assoc();
 
 // Get the stored certificate code

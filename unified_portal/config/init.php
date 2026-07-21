@@ -20,10 +20,11 @@ if (!defined('WPU_SYSTEM_INIT')) {
     define('WPU_SYSTEM_INIT', true);
 }
 
-// Error reporting (set to 0 in production)
+// Error reporting — production-safe defaults
+$wpuDebug = filter_var(getenv('APP_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
+ini_set('display_errors', $wpuDebug ? '1' : '0');
+ini_set('log_errors', '1');
 ini_set('error_log', SYSTEM_ROOT . '/logs/error.log');
 
 // Include configuration
@@ -31,6 +32,7 @@ require_once __DIR__ . '/database.php';
 
 // Include helper functions
 require_once dirname(__DIR__) . '/includes/helpers.php';
+require_once dirname(__DIR__) . '/includes/wpu_security.php';
 
 // Generate CSRF token if not exists
 generate_csrf_token();
@@ -39,9 +41,7 @@ generate_csrf_token();
 date_default_timezone_set('Asia/Manila');
 
 // Security headers
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: SAMEORIGIN');
-header('X-XSS-Protection: 1; mode=block');
+wpu_send_security_headers();
 
 /**
  * Get current page name without extension

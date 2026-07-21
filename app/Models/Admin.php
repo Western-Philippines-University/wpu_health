@@ -12,11 +12,17 @@ class Admin extends Authenticatable
     protected $fillable = [
         'username',
         'password',
+        'failed_login_attempts',
+        'locked_until',
+        'password_changed_at',
+        'two_factor_enabled',
+        'two_factor_secret',
     ];
 
     /** @var list<string> */
     protected $hidden = [
         'password',
+        'two_factor_secret',
     ];
 
     const UPDATED_AT = null;
@@ -25,6 +31,10 @@ class Admin extends Authenticatable
     {
         return [
             'created_at' => 'datetime',
+            'locked_until' => 'datetime',
+            'password_changed_at' => 'datetime',
+            'two_factor_enabled' => 'boolean',
+            'failed_login_attempts' => 'integer',
         ];
     }
 }

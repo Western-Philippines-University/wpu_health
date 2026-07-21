@@ -7,6 +7,7 @@
 
   var inflight = new Map();
   var debounceTimers = new Map();
+  var nativeFetch = global.fetch ? global.fetch.bind(global) : null;
 
   function requestKey(input, init) {
     var url = typeof input === 'string' ? input : (input && input.url) || '';
@@ -24,7 +25,9 @@
       return inflight.get(key);
     }
 
-    var baseFetch = global.fetch.bind(global);
+    if (!nativeFetch) {
+      throw new Error('fetch is not available');
+    }
     var attempt = 0;
     var maxRetries = typeof init.wpuRetries === 'number' ? init.wpuRetries : 0;
     var timeoutMs = typeof init.wpuTimeout === 'number' ? init.wpuTimeout : 30000;
@@ -40,7 +43,7 @@
       delete merged.wpuRetries;
       delete merged.wpuTimeout;
 
-      var promise = baseFetch(input, merged)
+      var promise = nativeFetch(input, merged)
         .then(function (response) {
           clearTimeout(timer);
           if (!response.ok && attempt < maxRetries) {
@@ -93,14 +96,13 @@
     abortAll: abortAll,
   };
 
-  if (!global.__wpuFetchPatched && global.fetch) {
+  if (!global.__wpuFetchPatched && nativeFetch) {
     global.__wpuFetchPatched = true;
-    var originalFetch = global.fetch;
     global.fetch = function (input, init) {
       if (init && init.wpuRaw === true) {
         var copy = Object.assign({}, init);
         delete copy.wpuRaw;
-        return originalFetch(input, copy);
+        return nativeFetch(input, copy);
       }
       return wpuFetch(input, init);
     };

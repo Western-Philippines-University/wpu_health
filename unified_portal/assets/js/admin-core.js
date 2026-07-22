@@ -44,10 +44,10 @@ let idleTimer = {
     lock: function() {
         console.log('Auto-lock triggered');
         clearInterval(this.interval);
-        
-        // Use proper redirect with full URL
-        const currentUrl = window.location.href.split('?')[0];
-        window.location.href = currentUrl + '?action=lock';
+
+        const cfg = window.WPU_HIS_CONFIG || {};
+        const lockUrl = cfg.lockUrl || (window.location.href.split('?')[0] + '?action=lock');
+        window.location.href = lockUrl;
     },
     
     stop: function() {
@@ -1127,72 +1127,82 @@ if (referralForm) {
 }
 
 // Staff Signature Form Submission - ENHANCED
-document.getElementById('staffSignatureForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = this;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const formData = new FormData(form);
-    
-    const originalText = FormManager.showLoading(submitBtn);
-    
-    try {
-        const response = await fetch('update_staff_signature.php', {
-            method: 'POST',
-            body: formData
-        });
+const staffSignatureForm = document.getElementById('staffSignatureForm');
+if (staffSignatureForm) {
+    staffSignatureForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const form = this;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const formData = new FormData(form);
         
-        const data = await response.json();
+        const originalText = FormManager.showLoading(submitBtn);
         
-        if (data.success) {
-            AlertSystem.show('Physician information updated successfully.', 'success');
-            setTimeout(() => {
-                ModalManager.close('staffSignatureModal');
-                window.location.href = '?page=settings&refresh=' + Date.now();
-            }, 1500);
-        } else {
-            throw new Error(data.message || 'Failed to update physician information.');
+        try {
+            const response = await fetch('update_staff_signature.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                AlertSystem.show('Physician information updated successfully.', 'success');
+                setTimeout(() => {
+                    ModalManager.close('staffSignatureModal');
+                    window.location.href = '?page=settings&refresh=' + Date.now();
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Failed to update physician information.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            AlertSystem.show(error.message, 'error');
+        } finally {
+            FormManager.hideLoading(submitBtn, originalText);
         }
-    } catch (error) {
-        console.error('Error:', error);
-        AlertSystem.show(error.message, 'error');
-    } finally {
-        FormManager.hideLoading(submitBtn, originalText);
-    }
-});
+    });
+} else {
+    console.log('Staff signature form not found on this page');
+}
 
 // Certificate Code Form Submission
-document.getElementById('certificateCodeForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = this;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const formData = new FormData(form);
-    
-    const originalText = FormManager.showLoading(submitBtn);
-    
-    try {
-        const response = await fetch('update_certificate_code.php', {
-            method: 'POST',
-            body: formData
-        });
+const certificateCodeForm = document.getElementById('certificateCodeForm');
+if (certificateCodeForm) {
+    certificateCodeForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const form = this;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const formData = new FormData(form);
         
-        const data = await response.json();
+        const originalText = FormManager.showLoading(submitBtn);
         
-        if (data.success) {
-            AlertSystem.show('Document codes updated successfully.', 'success');
-            setTimeout(() => {
-                ModalManager.close('certificateCodeModal');
-                window.location.href = '?page=settings&refresh=' + Date.now();
-            }, 1500);
-        } else {
-            throw new Error(data.message || 'Failed to update document codes.');
+        try {
+            const response = await fetch('update_certificate_code.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                AlertSystem.show('Document codes updated successfully.', 'success');
+                setTimeout(() => {
+                    ModalManager.close('certificateCodeModal');
+                    window.location.href = '?page=settings&refresh=' + Date.now();
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Failed to update document codes.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            AlertSystem.show(error.message, 'error');
+        } finally {
+            FormManager.hideLoading(submitBtn, originalText);
         }
-    } catch (error) {
-        console.error('Error:', error);
-        AlertSystem.show(error.message, 'error');
-    } finally {
-        FormManager.hideLoading(submitBtn, originalText);
-    }
-});
+    });
+} else {
+    console.log('Certificate code form not found on this page');
+}
 
 // ============================================
 // VIEW FUNCTIONS

@@ -177,9 +177,13 @@ if (isset($_GET['logout'])) {
 }
 
 /* --------------------- LOCK --------------------- */
-if (isset($_GET['lock'])) {
+$lock_requested = isset($_GET['lock'])
+    || (isset($_GET['action']) && $_GET['action'] === 'lock');
+
+if ($lock_requested && $logged_in) {
     $_SESSION['locked'] = true;
-    header('Location: ' . $_SERVER['PHP_SELF']);
+    $_SESSION['lock_time'] = date('Y-m-d H:i:s');
+    header('Location: '.wpu_admin_url());
     exit;
 }
 
@@ -192,15 +196,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     } else {
         $current_user = $_SESSION['admin_username'];
 
-        $stmt = $pdo->prepare("SELECT password FROM admins WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT id, password FROM admins WHERE username = ?");
         $stmt->execute([$current_user]);
         $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($admin && wpu_verify_admin_password($pdo, $admin, $password)) {
             unset($_SESSION['locked']);
+            unset($_SESSION['lock_time']);
             session_regenerate_id(true);
             wpu_rotate_csrf_token();
-            header('Location: ' . $_SERVER['PHP_SELF']);
+            header('Location: '.wpu_admin_url(['page' => 'dashboard']));
             exit;
         } else {
             $unlock_error = "Invalid password.";
@@ -208,22 +213,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     }
 }
 
-/* --------------------- AUTO-LOCK --------------------- */
-if (isset($_GET['action']) && $_GET['action'] === 'lock' && $logged_in) {
-    $_SESSION['locked'] = true;
-    $_SESSION['lock_time'] = date('Y-m-d H:i:s');
-    
-    // Proper redirect back to same page to show lock screen
-    header('Location: ' . $_SERVER['PHP_SELF']);
-    exit;
-}
+/* --------------------- LOCKED SESSION — clean URL --------------------- */
+if ($logged_in && isset($_SESSION['locked']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $needs_lock_url = isset($_GET['page'])
+        || isset($_GET['lock'])
+        || (isset($_GET['action']) && $_GET['action'] === 'lock');
 
-/* --------------------- MANUAL LOCK --------------------- */
-if (isset($_GET['lock']) && $logged_in) {
-    $_SESSION['locked'] = true;
-    $_SESSION['lock_time'] = date('Y-m-d H:i:s');
-    header('Location: ' . $_SERVER['PHP_SELF']);
-    exit;
+    if ($needs_lock_url) {
+        header('Location: '.wpu_admin_url());
+        exit;
+    }
 }
 
 /* --------------------- SAVE AUTOLOCK SETTINGS --------------------- */
@@ -517,6 +516,10 @@ if (!$logged_in && $page !== 'login') {
 
 // Page-aware data loading (cached reference data, queries only when logged in + per page)
 require_once '../includes/wpu_page_data.php';
+
+if (! isset($error_message) && isset($GLOBALS['error_message'])) {
+    $error_message = $GLOBALS['error_message'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -718,17 +721,18 @@ header.admin-topbar {
         <div class="lock-screen">
             <form method="POST" class="lock-form" autocomplete="current-password">
                 <input type="hidden" name="action" value="unlock">
+                <input type="hidden" name="form_token" value="<?php echo htmlspecialchars(wpu_ensure_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="login-brand" style="margin-bottom:18px;">
                     <img src="<?php echo htmlspecialchars($his_assets, ENT_QUOTES, 'UTF-8'); ?>/images/logo.png" alt="WPU Medical">
                 </div>
                 <h2><i class="fas fa-lock" aria-hidden="true"></i> Session Locked</h2>
                 <p style="margin-bottom: 20px;">Signed in as <strong><?php echo htmlspecialchars($current_user); ?></strong>. Enter your password to continue.</p>
                 
-                <?php if (isset($unlock_error)): ?>
+                <?php if (isset($unlock_error) || isset($error_message)): ?>
                     <div class="alert alert-error">
                         <div class="alert-content">
                             <div class="alert-title">Unlock Failed</div>
-                            <div class="alert-message"><?php echo htmlspecialchars($unlock_error); ?></div>
+                            <div class="alert-message"><?php echo htmlspecialchars($unlock_error ?? $error_message); ?></div>
                         </div>
                         <button type="button" class="alert-close" onclick="this.parentElement.remove()" aria-label="Dismiss">
                             <i class="fas fa-times"></i>
@@ -1988,6 +1992,8 @@ header.admin-topbar {
 <script>
 window.WPU_HIS_CONFIG = <?php echo json_encode([
     'autoLock' => ['enabled' => (bool) $enabled, 'timeout' => (int) $timeout],
+    'lockUrl' => wpu_admin_url(['action' => 'lock']),
+    'dashboardUrl' => wpu_admin_url(['page' => 'dashboard']),
 ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 </script>
 <script src="<?php echo htmlspecialchars($his_assets, ENT_QUOTES, 'UTF-8'); ?>/js/admin-core.js?v=<?php echo (int) $his_core_js_v; ?>"></script>

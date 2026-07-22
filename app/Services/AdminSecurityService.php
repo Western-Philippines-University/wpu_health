@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Admin;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class AdminSecurityService
 {
@@ -62,13 +61,17 @@ class AdminSecurityService
     {
         $stored = (string) $admin->password;
 
+        if ($stored === '') {
+            return false;
+        }
+
         if (str_starts_with($stored, '$2y$') || str_starts_with($stored, '$2a$') || str_starts_with($stored, '$argon2')) {
-            if (! Hash::check($password, $stored)) {
+            if (! password_verify($password, $stored)) {
                 return false;
             }
-            if (Hash::needsRehash($stored)) {
+            if (password_needs_rehash($stored, PASSWORD_ARGON2ID)) {
                 $admin->forceFill([
-                    'password' => Hash::make($password),
+                    'password' => password_hash($password, PASSWORD_ARGON2ID),
                     'password_changed_at' => now(),
                 ])->save();
             }
@@ -82,7 +85,7 @@ class AdminSecurityService
         }
 
         $admin->forceFill([
-            'password' => Hash::make($password),
+            'password' => password_hash($password, PASSWORD_ARGON2ID),
             'password_changed_at' => now(),
         ])->save();
 

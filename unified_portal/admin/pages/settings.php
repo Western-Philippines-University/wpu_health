@@ -95,6 +95,7 @@
                                             </header>
                                             <div class="settings-panel__body">
                                                 <form method="post" action="">
+                                                    <input type="hidden" name="form_token" value="<?php echo htmlspecialchars(wpu_ensure_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                                                     <input type="hidden" name="action" value="save_autolock">
                                                     <label class="settings-checkbox-row" for="enabled">
                                                         <input type="checkbox" id="enabled" name="enabled" value="1" <?php echo $enabled ? 'checked' : ''; ?>>
@@ -128,6 +129,7 @@
                                             </header>
                                             <div class="settings-panel__body">
                                                 <form method="post" action="">
+                                                    <input type="hidden" name="form_token" value="<?php echo htmlspecialchars(wpu_ensure_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                                                     <input type="hidden" name="action" value="change_password">
                                                     <div class="settings-form-grid-3">
                                                         <div class="form-group">

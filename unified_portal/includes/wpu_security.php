@@ -129,6 +129,23 @@ function wpu_destroy_session(): void
 }
 
 /**
+ * Build Content-Security-Policy header value.
+ */
+function wpu_content_security_policy(): string
+{
+    $scriptSrc = "'self' 'unsafe-inline' https://cdnjs.cloudflare.com";
+
+    $debug = (function_exists('config') && config('app.debug'))
+        || filter_var(getenv('APP_DEBUG') ?: ($_ENV['APP_DEBUG'] ?? 'false'), FILTER_VALIDATE_BOOLEAN);
+
+    if ($debug) {
+        $scriptSrc .= " 'unsafe-eval'";
+    }
+
+    return "default-src 'self'; script-src {$scriptSrc}; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'";
+}
+
+/**
  * Send OWASP-recommended security headers for legacy PHP responses.
  */
 function wpu_send_security_headers(): void
@@ -151,7 +168,7 @@ function wpu_send_security_headers(): void
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
 
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
+    header('Content-Security-Policy: '.wpu_content_security_policy());
 }
 
 /**
@@ -174,6 +191,26 @@ function wpu_is_admin_logged_in(): bool
     wpu_sync_laravel_admin_session();
 
     return ! empty($_SESSION['admin_username']);
+}
+
+/**
+ * Resolve admin.php URL for redirects (Laravel workspace bridge or standalone).
+ *
+ * @param  array<string, scalar|null>  $query
+ */
+function wpu_admin_url(array $query = []): string
+{
+    if (defined('WPU_LARAVEL_BRIDGE') && WPU_LARAVEL_BRIDGE && function_exists('route')) {
+        $url = route('admin.workspace', ['path' => 'admin/admin.php']);
+    } else {
+        $url = 'admin.php';
+    }
+
+    if ($query !== []) {
+        $url .= (str_contains($url, '?') ? '&' : '?').http_build_query($query);
+    }
+
+    return $url;
 }
 
 /**

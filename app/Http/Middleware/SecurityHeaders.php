@@ -29,10 +29,22 @@ class SecurityHeaders
         if (! $response->headers->has('Content-Security-Policy')) {
             $response->headers->set(
                 'Content-Security-Policy',
-                "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+                $this->contentSecurityPolicy()
             );
         }
 
         return $response;
+    }
+
+    private function contentSecurityPolicy(): string
+    {
+        $scriptSrc = "'self' 'unsafe-inline' https://cdnjs.cloudflare.com";
+
+        // Laravel's debug exception page (Alpine.js) needs eval in local development.
+        if (config('app.debug')) {
+            $scriptSrc .= " 'unsafe-eval'";
+        }
+
+        return "default-src 'self'; script-src {$scriptSrc}; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'";
     }
 }

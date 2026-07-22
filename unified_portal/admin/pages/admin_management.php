@@ -32,6 +32,7 @@
                                             </header>
                                             <div class="settings-panel__body">
                                                 <form method="post" action="">
+                                                    <input type="hidden" name="form_token" value="<?php echo htmlspecialchars(wpu_ensure_csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
                                                     <input type="hidden" name="action" value="save_admin">
                                                     <div class="settings-form-grid-2">
                                                         <div class="form-group">

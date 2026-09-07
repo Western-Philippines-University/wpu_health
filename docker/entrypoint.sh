@@ -14,8 +14,12 @@ if [ -z "${APP_KEY:-}" ]; then
     export APP_KEY="base64:$(openssl rand -base64 32)"
 fi
 
-php artisan migrate --force --no-interaction
-php artisan db:seed --force --class=AdminSeeder --no-interaction || true
-php artisan wpu:optimize-production --force --no-interaction || true
+if [ -n "${DB_HOST:-}" ] && [ -n "${DB_DATABASE:-}" ]; then
+    php artisan migrate --force --no-interaction || echo "WARN: migrations failed"
+    php artisan db:seed --force --class=AdminSeeder --no-interaction || echo "WARN: admin seed failed"
+    php artisan wpu:optimize-production --force --no-interaction || echo "WARN: optimize failed"
+else
+    echo "WARN: DB_HOST/DB_DATABASE not set — skipping migrations until MySQL is configured."
+fi
 
 exec "$@"

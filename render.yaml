@@ -1,0 +1,44 @@
+# Deploy to Render: https://render.com/deploy?repo=https://github.com/jomarirecalde-prog/wpu_health
+#
+# After deploy:
+# 1. Set APP_URL to your Render service URL
+# 2. Add MySQL (Render MySQL or external) and set DB_* env vars
+# 3. In Netlify, set ADMIN_BACKEND_URL to the same Render URL
+
+services:
+  - type: web
+    name: wpu-health
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_NAME
+        value: WPU Health Services
+      - key: APP_TIMEZONE
+        value: Asia/Manila
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: LOG_LEVEL
+        value: warning

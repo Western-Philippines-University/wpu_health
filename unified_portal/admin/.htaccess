@@ -1,0 +1,9 @@
+# Block debug endpoints from web access
+<Files "test_referral.php">
+    Require all denied
+</Files>
+
+# Deny access to backup artifacts if present
+<FilesMatch "\.(sql|bak|backup|log)$">
+    Require all denied
+</FilesMatch>

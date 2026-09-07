@@ -1,0 +1,2357 @@
+/* Compact Office UI - Professional Medical System */
+:root {
+    /* Primary Colors */
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --primary-light: #3b82f6;
+    
+    /* Accent Colors */
+    --accent: #0891b2;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    
+    /* Neutral Colors */
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    
+    /* Typography */
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 13px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--gray-50);
+    color: var(--gray-800);
+    font-size: var(--font-size-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Compact Header */
+header {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: var(--spacing-md) var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.header .logo {
+    height: 42px;
+    margin-right: var(--spacing-md);
+}
+
+.header .header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.header .header-text h1 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    line-height: 1.2;
+}
+
+.header .header-text small {
+    font-size: var(--font-size-xs);
+    font-weight: 400;
+    color: var(--gray-500);
+}
+
+.header .header-actions {
+    margin-left: auto;
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.header .admin-link,
+.header .health-link,
+.header .dental-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 6px 12px;
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.header .admin-link {
+    background: var(--primary);
+}
+
+.header .health-link {
+    background: #dc2626;
+}
+
+.header .dental-link {
+    background: var(--success);
+}
+
+.header .admin-link:hover {
+    background: var(--primary-dark);
+}
+
+.header .health-link:hover {
+    background: #b91c1c;
+}
+
+.header .dental-link:hover {
+    background: #047857;
+}
+
+
+
+/* Compact Main Content */
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: var(--spacing-xl);
+}
+
+.button-wrapper {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+/* Compact Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 8px 16px;
+    background: var(--primary);
+    color: white;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+    line-height: 1.4;
+}
+
+.btn:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Compact Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: #ffffff;
+    margin: 3% auto;
+    padding: 0;
+    border: 1px solid var(--gray-200);
+    width: 92%;
+    max-width: 850px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    animation: slideIn 0.15s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content h2 {
+    background: var(--primary);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xl);
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    text-align: left;
+    position: relative;
+    border-bottom: 1px solid var(--primary-dark);
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: var(--spacing-md);
+    color: white;
+    font-size: 20px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    z-index: 10;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.1);
+    line-height: 1;
+}
+
+.close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Compact Forms */
+#certificateForm,
+#referralForm {
+    padding: var(--spacing-lg);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md) var(--spacing-lg);
+    max-height: 68vh;
+    overflow-y: auto;
+    background: #ffffff;
+}
+
+#certificateForm::-webkit-scrollbar,
+#referralForm::-webkit-scrollbar {
+    width: 5px;
+}
+
+#certificateForm::-webkit-scrollbar-track,
+#referralForm::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+#certificateForm::-webkit-scrollbar-thumb,
+#referralForm::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: var(--radius-sm);
+}
+
+#certificateForm::-webkit-scrollbar-thumb:hover,
+#referralForm::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+.form-section-header {
+    grid-column: 1 / -1;
+    margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+    padding: 6px var(--spacing-md);
+    background: var(--gray-50);
+    color: var(--gray-700);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+    border: 1px solid var(--gray-200);
+    border-left: 3px solid var(--primary);
+    font-size: var(--font-size-xs);
+}
+
+.form-group {
+    margin-bottom: 0;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: var(--gray-700);
+    font-size: var(--font-size-sm);
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    transition: all 0.15s ease;
+    background: #ffffff;
+    color: var(--gray-800);
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="date"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.form-group input[type="text"]:hover,
+.form-group input[type="number"]:hover,
+.form-group input[type="date"]:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: var(--gray-400);
+}
+
+/* Compact Checkboxes */
+.form-group .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    padding: 6px 10px;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.form-group .checkbox-container:hover {
+    background: var(--gray-100);
+}
+
+.form-group .checkbox-container input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.form-group .checkbox-container label {
+    margin-bottom: 0;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+    font-weight: 400;
+}
+
+.form-group .impression-group {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+}
+
+.form-group .impression-group .checkbox-container {
+    margin-bottom: 0;
+    background: #ffffff;
+}
+
+/* Compact Submit Button */
+.submit-btn {
+    grid-column: 1 / -1;
+    background: var(--primary);
+    color: white;
+    padding: 9px var(--spacing-xl);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin-top: var(--spacing-md);
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.submit-btn:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+
+.submit-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Compact Responsive Styles */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 3% auto;
+    }
+    .modal-content h2 {
+        padding: var(--spacing-md) var(--spacing-lg);
+        font-size: var(--font-size-md);
+    }
+    .close {
+        top: 8px;
+        right: var(--spacing-md);
+    }
+    #certificateForm,
+    #referralForm {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        padding: var(--spacing-lg) var(--spacing-md);
+        max-height: 75vh;
+    }
+    .form-group.full-width {
+        grid-column: 1;
+    }
+    .form-group .impression-group {
+        grid-column: 1;
+        gap: var(--spacing-sm);
+    }
+    .form-section-header {
+        margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+        padding: 6px var(--spacing-md);
+    }
+    .submit-btn {
+        padding: 8px var(--spacing-lg);
+        margin-top: var(--spacing-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        margin: 2% auto;
+    }
+    .modal-content h2 {
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-sm);
+    }
+    .close {
+        top: 6px;
+        right: var(--spacing-sm);
+        width: 24px;
+        height: 24px;
+    }
+    #certificateForm,
+    #referralForm {
+        padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+        max-height: 80vh;
+    }
+    .form-section-header {
+        margin: var(--spacing-sm) 0;
+        padding: 5px var(--spacing-sm);
+    }
+    .submit-btn {
+        padding: 7px var(--spacing-md);
+        margin-top: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 1024px) {
+    #referralForm {
+        padding: 30px;
+        gap: 25px;
+    }
+    #referralForm .form-section-header {
+        margin: 20px 0 15px 0;
+        padding: 15px 20px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    #referralForm {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 25px;
+        max-height: 80vh;
+    }
+    #referralForm .form-group.full-width {
+        grid-column: 1;
+    }
+    #referralForm .checkbox-group {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    #referralForm .form-section-header {
+        margin: 15px 0 10px 0;
+        padding: 12px 15px;
+        font-size: 14px;
+        letter-spacing: 0.8px;
+    }
+    #referralForm .submit-btn {
+        padding: 16px 28px;
+        font-size: 15px;
+        margin-top: 25px;
+    }
+    #referralForm .form-group label {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    #referralForm .form-group input[type="text"],
+    #referralForm .form-group input[type="number"],
+    #referralForm .form-group input[type="date"],
+    #referralForm .form-group select,
+    #referralForm .form-group textarea {
+        padding: 12px 15px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    #referralForm {
+        padding: 20px;
+        gap: 15px;
+        max-height: 85vh;
+    }
+    #referralForm .form-section-header {
+        margin: 12px 0 8px 0;
+        padding: 10px 12px;
+        font-size: 13px;
+        letter-spacing: 0.6px;
+        border-radius: 10px;
+    }
+    #referralForm .checkbox-group {
+        padding: 10px;
+        gap: 6px;
+    }
+    #referralForm .checkbox-option {
+        padding: 5px 8px;
+    }
+    #referralForm .checkbox-option label {
+        font-size: 11px;
+    }
+    #referralForm .submit-btn {
+        padding: 14px 24px;
+        font-size: 14px;
+        margin-top: 20px;
+        border-radius: 12px;
+    }
+    #referralForm .form-group label {
+        font-size: 12px;
+        margin-bottom: 6px;
+        letter-spacing: 0.6px;
+    }
+    #referralForm .form-group input[type="text"],
+    #referralForm .form-group input[type="number"],
+    #referralForm .form-group input[type="date"],
+    #referralForm .form-group select,
+    #referralForm .form-group textarea {
+        padding: 10px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+    }
+    #referralForm textarea {
+        min-height: 70px;
+    }
+    #referralForm textarea:focus {
+        min-height: 90px;
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+    #referralForm .form-section-header {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    #referralForm .form-group label {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+@media print {
+    #referralForm {
+        display: block;
+        padding: 0;
+        background: white;
+        color: black;
+    }
+    #referralForm .form-section-header {
+        background: #f0f0f0 !important;
+        color: black !important;
+        border: 1px solid #ccc;
+        box-shadow: none;
+    }
+    #referralForm .checkbox-group {
+        background: white !important;
+        border: 1px solid #ccc;
+    }
+    #referralForm .submit-btn {
+        display: none;
+    }
+}
+
+.modal-content form {
+    background: #ffffff;
+    color: #1e293b;
+}
+
+.form-group+.form-group {
+    margin-top: 5px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.15);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 18px;
+    padding-right: 50px;
+}
+
+.form-group select option {
+    background-color: #ffffff;
+    color: #1e293b;
+    border: none;
+    padding: 12px 16px;
+}
+
+.form-group select option:hover {
+    background-color: #f1f5f9;
+    color: #1e3a8a;
+}
+
+.form-group select option:checked {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.form-group select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #1e293b;
+}
+
+.form-group select::-webkit-select-placeholder {
+    color: #94a3b8;
+}
+
+.form-group select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.form-group input[type="date"] {
+    position: relative;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
+.form-group input[type="checkbox"],
+.form-group input[type="radio"] {
+    position: relative;
+    cursor: pointer;
+}
+
+.form-group input[type="checkbox"]:checked::before {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+    border-color: #dc2626;
+}
+
+.form-group select {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-group select:focus {
+    background-color: #ffffff;
+}
+
+.form-group select optgroup {
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.form-group select optgroup option {
+    background-color: #ffffff;
+    color: #1e293b;
+    font-weight: normal;
+    padding-left: 20px;
+}
+
+.form-group select option:not([disabled]) {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+.form-group select option[disabled] {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+}
+
+.form-group input:invalid:focus,
+.form-group select:invalid:focus,
+.form-group textarea:invalid:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+.form-group input:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+    border-color: #059669;
+}
+
+.form-group input:valid:focus,
+.form-group select:valid:focus,
+.form-group textarea:valid:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+}
+
+* {
+    transition: all 0.2s ease;
+}
+
+.btn:active,
+.submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 64, 175, 0.1) 100%);
+    pointer-events: none;
+}
+
+.modal-content {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1001;
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid #1e3a8a;
+}
+
+.form-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group label {
+    position: relative;
+    display: inline-block;
+}
+
+.form-group label::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    transition: width 0.3s ease;
+}
+
+.form-group input:focus+label::after,
+.form-group select:focus+label::after {
+    width: 100%;
+}
+
+.btn,
+.submit-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before,
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before,
+.submit-btn:hover::before {
+    left: 100%;
+}
+
+.form-group.loading input,
+.form-group.loading select {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.form-group.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid #1e3a8a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Compact Certificate Container */
+.certificate-container {
+    display: none;
+    max-width: 800px;
+    margin: var(--spacing-lg) auto;
+    padding: var(--spacing-md);
+    background-color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.certificate {
+    padding: var(--spacing-xl);
+    border: 2px solid var(--gray-800);
+    position: relative;
+    font-family: "Times New Roman", serif;
+    line-height: 1.5;
+}
+
+.certificate-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-left img {
+    height: 70px;
+    margin-right: 15px;
+}
+
+.header-left h3 {
+    font-size: 15px;
+    text-align: left;
+    line-height: 1.4;
+}
+
+.header-right p {
+    font-size: 10px;
+    font-style: italic;
+}
+
+.health-office {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.certificate-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    margin-bottom: 30px;
+}
+
+.certificate-body {
+    font-size: 14px;
+}
+
+.certificate-body p {
+    margin-bottom: 15px;
+}
+
+.underline {
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+}
+
+.checkbox {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #333;
+    margin-right: 10px;
+    position: relative;
+    top: 3px;
+}
+
+.signature {
+    margin-top: 50px;
+    text-align: right;
+    width: 100%;
+    font-size: 14px;
+}
+
+.signature-content {
+    display: inline-block;
+    text-align: center;
+    margin-left: auto;
+    margin-right: 0;
+    padding-right: 50px;
+}
+
+.signature-line {
+    width: 273px;
+    border-top: 1px solid #333;
+    margin-left: 53%;
+    width: 47%;
+}
+
+.signature-name {
+    font-weight: bold;
+}
+
+/* Compact Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 7px var(--spacing-lg);
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn:active {
+    transform: translateY(1px);
+}
+
+.checkbox-group {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.checkbox-option input {
+    margin: 0;
+}
+
+/* Compact Textarea */
+textarea {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    min-height: 60px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.referral-container {
+    display: none;
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.referral {
+    padding: 40px;
+    border: 2px solid #333;
+    position: relative;
+    font-family: "Times New Roman", serif;
+    line-height: 1.5;
+    font-size: 12pt;
+}
+
+.referral-title {
+    font-size: 16pt;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    margin-bottom: 20px;
+}
+
+.referral-body {
+    font-size: 12px;
+}
+
+.referral-body p {
+    margin-bottom: 15px;
+}
+
+.dotted-line {
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+    display: inline-block;
+    min-width: 200px;
+}
+
+.referral-section {
+    margin-top: 30px;
+}
+
+.referral-section-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.cut-here {
+    text-align: center;
+    margin: 30px 0;
+    font-style: italic;
+}
+
+.referral-footer {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+        margin: 0;
+        padding: 0;
+    }
+    .certificate-modal.print-show,
+    .referral-modal.print-show,
+    .certificate-modal.print-show *,
+    .referral-modal.print-show * {
+        visibility: visible;
+    }
+    .certificate-modal.print-show {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        height: 295mm;
+        margin: 0;
+        box-sizing: border-box;
+        page-break-before: always;
+        transform: none !important;
+        transform: scale(1.5);
+    }
+    .referral-modal.print-show {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 215.9mm;
+        height: 355.6;
+        margin: 0;
+        box-sizing: border-box;
+        page-break-before: always;
+        transform: none !important;
+        transform: scale(1.5);
+    }
+    .certificate.print-show,
+    .referral.print-show {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    .certificate-title,
+    .referral-title {
+        font-size: 16pt;
+        margin-bottom: 15mm;
+    }
+    .certificate-body,
+    .referral-body {
+        font-size: 12pt;
+    }
+    .signature-line {
+        width: 70mm !important;
+    }
+    .btn,
+    .action-buttons,
+    .modal,
+    header,
+    .main-content {
+        display: none !important;
+    }
+    @page {
+        size: a4;
+        margin: 0;
+    }
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1), 0 8px 25px rgba(30, 58, 138, 0.15);
+    transition: all 0.3s ease;
+}
+
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid {
+    border-color: #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid {
+    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.form-group input:invalid,
+.form-group select:invalid,
+.form-group textarea:invalid {
+    border-color: #ef4444;
+}
+
+.swal2-popup {
+    font-family: 'Poppins', sans-serif;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 25px 80px rgba(15, 23, 42, 0.15), 0 10px 40px rgba(30, 58, 138, 0.1);
+    border: 1px solid rgba(30, 58, 138, 0.1);
+}
+
+.swal2-title {
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.swal2-content {
+    color: #64748b;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.swal2-confirm {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    padding: 14px 28px !important;
+    font-size: 16px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4) !important;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+}
+
+.swal2-cancel {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    padding: 14px 28px !important;
+    font-size: 16px !important;
+    border: 2px solid #e2e8f0 !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-cancel:hover {
+    background: #e2e8f0 !important;
+    color: #475569 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.1) !important;
+}
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid {
+    animation: shake 0.5s ease-in-out;
+}
+
+.form-group input:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+    border-color: #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.form-group input[title]:not([title=""]) {
+    position: relative;
+}
+
+.form-group input[title]:not([title=""])::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.form-group input[title]:not([title=""]):hover::after {
+    opacity: 1;
+}
+
+.certificate-modal,
+.referral-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.certificate-modal-content,
+.referral-modal-content {
+    background: white;
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+    animation: slideInFullscreen 0.3s ease-out;
+    position: relative;
+}
+
+@keyframes slideInFullscreen {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.certificate-modal .close,
+.referral-modal .close {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    color: #333;
+    font-size: 32px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2010;
+    background: rgba(255, 255, 255, 0.9);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.certificate-modal .close:hover,
+.referral-modal .close:hover {
+    color: #1e3a8a;
+    transform: scale(1.1);
+    background: white;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.certificate-modal .certificate,
+.referral-modal .referral {
+    padding: 60px 40px 40px 40px;
+    border: none;
+    position: relative;
+    font-family: "Times New Roman", serif;
+    line-height: 1.5;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    background: white;
+}
+
+.certificate-modal .action-buttons,
+.referral-modal .action-buttons {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    z-index: 2010;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.certificate-modal .action-btn,
+.referral-modal .action-btn {
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+    min-width: 140px;
+}
+
+.certificate-modal .action-btn:hover,
+.referral-modal .action-btn:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+}
+
+.certificate-modal .action-btn:active,
+.referral-modal .action-btn:active {
+    transform: translateY(0);
+}
+
+.certificate-modal .certificate-header,
+.referral-modal .certificate-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.certificate-modal .header-content,
+.referral-modal .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.certificate-modal .header-left img,
+.referral-modal .header-left img {
+    height: 80px;
+    margin-right: 20px;
+}
+
+.certificate-modal .header-left h3,
+.referral-modal .header-left h3 {
+    font-size: 16px;
+    text-align: left;
+    line-height: 1.4;
+    color: #1f2937;
+}
+
+.certificate-modal .header-right p,
+.referral-modal .header-right p {
+    font-size: 11px;
+    font-style: italic;
+    color: #6b7280;
+}
+
+.certificate-modal .health-office,
+.referral-modal .health-office {
+    font-size: 16px;
+    margin-top: 15px;
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+.certificate-modal .certificate-title,
+.referral-modal .referral-title {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: underline;
+    margin-bottom: 40px;
+    color: #1f2937;
+}
+
+.certificate-modal .certificate-body,
+.referral-modal .referral-body {
+    font-size: 15px;
+    color: #374151;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.certificate-modal .certificate-body p,
+.referral-modal .referral-body p {
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+.certificate-modal .underline,
+.referral-modal .dotted-line {
+    border-bottom: 2px solid #374151;
+    padding-bottom: 3px;
+    display: inline-block;
+    min-width: 120px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.certificate-modal .checkbox {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #374151;
+    margin-right: 12px;
+    position: relative;
+    top: 3px;
+    border-radius: 3px;
+}
+
+.certificate-modal .signature,
+.referral-modal .signature {
+    margin-top: 60px;
+    text-align: right;
+    width: 100%;
+    font-size: 15px;
+    color: #374151;
+}
+
+.certificate-modal .signature-line,
+.referral-modal .signature-line {
+    width: 300px;
+    border-top: 2px solid #374151;
+    margin-left: auto;
+    margin-right: 0;
+    margin-bottom: 15px;
+}
+
+.certificate-modal .signature-name,
+.referral-modal .signature-name {
+    font-weight: bold;
+    color: #1e3a8a;
+}
+
+@media (max-width: 768px) {
+    .certificate-modal .certificate,
+    .referral-modal .referral {
+        padding: 80px 20px 100px 20px;
+        height: calc(100vh - 120px);
+    }
+    .certificate-modal .header-content,
+    .referral-modal .header-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    .certificate-modal .header-left,
+    .referral-modal .header-left {
+        flex-direction: column;
+        align-items: center;
+    }
+    .certificate-modal .header-left img,
+    .referral-modal .header-left img {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    .certificate-modal .action-buttons,
+    .referral-modal .action-buttons {
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        transform: none;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .certificate-modal .action-btn,
+    .referral-modal .action-btn {
+        flex: 1;
+        min-width: 120px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .certificate-modal .certificate,
+    .referral-modal .referral {
+        padding: 100px 15px 120px 15px;
+    }
+    .certificate-modal .certificate-title,
+    .referral-modal .referral-title {
+        font-size: 18px;
+        margin-bottom: 30px;
+    }
+    .certificate-modal .certificate-body,
+    .referral-modal .referral-body {
+        font-size: 14px;
+    }
+    .certificate-modal .action-buttons,
+    .referral-modal .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .certificate-modal .action-btn,
+    .referral-modal .action-btn {
+        width: 100%;
+    }
+}
+
+.certificate-modal .modal-content,
+.referral-modal .modal-content {
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.certificate-modal .certificate,
+.referral-modal .referral {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.certificate-modal .certificate::-webkit-scrollbar,
+.referral-modal .referral::-webkit-scrollbar {
+    width: 8px;
+}
+
+.certificate-modal .certificate::-webkit-scrollbar-track,
+.referral-modal .referral::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.certificate-modal .certificate::-webkit-scrollbar-thumb,
+.referral-modal .referral::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.certificate-modal .certificate::-webkit-scrollbar-thumb:hover,
+.referral-modal .referral::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.certificate-modal,
+.referral-modal {
+    z-index: 9999 !important;
+}
+
+.modal:focus {
+    outline: none;
+}
+
+.certificate-modal .modal-content,
+.referral-modal .modal-content {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 480px) {
+    .certificate-modal .close,
+    .referral-modal .close {
+        top: 15px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 28px;
+    }
+    .certificate-modal .action-buttons,
+    .referral-modal .action-buttons {
+        bottom: 20px;
+        left: 15px;
+        right: 15px;
+        padding: 15px 20px;
+    }
+}
+
+.certificate-modal .certificate-body p:last-child,
+.referral-modal .referral-body p:last-child {
+    margin-bottom: 0;
+}
+
+@media print {
+    .certificate-modal.print-show,
+    .referral-modal.print-show {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        z-index: 9999 !important;
+        overflow: visible !important;
+    }
+    .certificate-modal.print-show .modal-content,
+    .referral-modal.print-show .modal-content {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+    }
+    .certificate-modal.print-show .certificate,
+    .referral-modal.print-show .referral {
+        padding: 20px !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .certificate-modal.print-show .action-buttons,
+    .referral-modal.print-show .action-buttons,
+    .certificate-modal.print-show .close,
+    .referral-modal.print-show .close {
+        display: none !important;
+    }
+}
+
+#certificateForm .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+#certificateForm .form-group.w-full {
+    grid-column: 1 / -1;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.form-group textarea:focus {
+    min-height: 100px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    color: #374151;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="date"]:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.form-group input[type="text"]:hover,
+.form-group input[type="number"]:hover,
+.form-group input[type="date"]:hover,
+.form-group select:hover {
+    border-color: #9ca3af;
+}
+
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.form-group select option {
+    background-color: #ffffff;
+    color: #374151;
+    padding: 8px 12px;
+}
+
+.form-group select option:hover {
+    background-color: #f3f4f6;
+    color: #1e3a8a;
+}
+
+.form-group select option:checked {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+#referralForm {
+    padding: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-height: 75vh;
+    overflow-y: auto;
+    background: #ffffff;
+}
+
+#referralForm .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+#referralForm .form-section-header:first-of-type {
+    margin-top: 0;
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+#referralForm .form-section-header:nth-of-type(3) {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+#referralForm .form-section-header:nth-of-type(4) {
+    background: #faf5ff;
+    color: #7c3aed;
+    border-color: #e9d5ff;
+}
+
+#referralForm .form-section-header:last-of-type {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+#referralForm .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+#referralForm .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+#referralForm .checkbox-option:hover {
+    background: #f3f4f6;
+}
+
+#referralForm .checkbox-option input[type="checkbox"],
+#referralForm .checkbox-option input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #1e3a8a;
+    cursor: pointer;
+    margin: 0;
+}
+
+#referralForm .checkbox-option label {
+    margin-bottom: 0;
+    text-transform: none;
+    letter-spacing: normal;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    font-weight: 500;
+    user-select: none;
+}
+
+#referralForm .checkbox-group:first-of-type {
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 16px;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+#referralForm .checkbox-group:last-of-type {
+    grid-template-columns: repeat(2, 1fr);
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+@media (max-width: 768px) {
+    #referralForm .checkbox-group {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 10px;
+    }
+    #referralForm .checkbox-option {
+        padding: 6px 8px;
+    }
+    #referralForm .checkbox-option label {
+        font-size: 12px;
+    }
+}
+
+#referralForm .submit-btn {
+    grid-column: 1 / -1;
+    background: #1e3a8a;
+    color: white;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.2);
+}
+
+#referralForm .submit-btn:hover {
+    background: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+}
+
+#referralForm .submit-btn:active {
+    transform: translateY(0);
+}
+
+#referralForm textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+#referralForm textarea:focus {
+    min-height: 100px;
+}
+
+.certificate-body {
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 20px;
+}
+
+.center-text {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.dotted {
+    display: inline-block;
+    border-bottom: 1px dotted #000;
+    min-width: 100px;
+}
+
+.dotted.small {
+    min-width: 60px;
+}
+
+.dotted.wide {
+    min-width: 200px;
+}
+
+.checkbox {
+    display: inline-block;
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.details {
+    width: 100%;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.details td {
+    padding: 5px 15px 5px 0;
+}
+
+.signature {
+    margin-top: 60px;
+    text-align: right;
+}
+
+.signature-line {
+    width: 250px;
+    border-top: 1px solid #000;
+    margin: 0 0 5px auto;
+}
+
+.signature-name {
+    font-weight: bold;
+}
+
+.footer-text {
+    margin-top: var(--spacing-xl);
+    text-align: center;
+    font-size: var(--font-size-xs);
+}
+
+/* ============================================
+   COMPACT OFFICE UI - UTILITY CLASSES
+   ============================================ */
+
+/* Spacing Utilities */
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+
+.m-xs { margin: var(--spacing-xs); }
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+
+/* Typography */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Colors */
+.text-primary { color: var(--primary); }
+.text-gray { color: var(--gray-500); }
+.text-dark { color: var(--gray-800); }
+.text-muted { color: var(--gray-400); }
+
+.bg-white { background-color: white; }
+.bg-gray { background-color: var(--gray-50); }
+.bg-primary { background-color: var(--primary); }
+
+/* Layout */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+/* Borders & Shadows */
+.border { border: 1px solid var(--gray-200); }
+.border-t { border-top: 1px solid var(--gray-200); }
+.border-b { border-bottom: 1px solid var(--gray-200); }
+.rounded { border-radius: var(--radius-md); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Display */
+.hidden { display: none; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+
+/* Compact Card Component */
+.card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.card-compact {
+    padding: var(--spacing-sm);
+}
+
+.card-header {
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+    font-size: var(--font-size-md);
+}
+
+/* Compact Badge */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.badge-primary {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+}
+
+.badge-success {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--success);
+}
+
+.badge-warning {
+    background: rgba(217, 119, 6, 0.1);
+    color: var(--warning);
+}
+
+.badge-danger {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--danger);
+}
+
+/* Compact Alert */
+.alert {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-sm);
+    border-left: 3px solid;
+}
+
+.alert-info {
+    background: rgba(37, 99, 235, 0.05);
+    border-color: var(--primary);
+    color: var(--primary-dark);
+}
+
+.alert-success {
+    background: rgba(5, 150, 105, 0.05);
+    border-color: var(--success);
+    color: #065f46;
+}
+
+.alert-warning {
+    background: rgba(217, 119, 6, 0.05);
+    border-color: var(--warning);
+    color: #92400e;
+}
+
+.alert-danger {
+    background: rgba(220, 38, 38, 0.05);
+    border-color: var(--danger);
+    color: #991b1b;
+}
+
+/* Compact Divider */
+.divider {
+    height: 1px;
+    background: var(--gray-200);
+    margin: var(--spacing-md) 0;
+}
+
+/* Compact Link */
+a.link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: color 0.15s ease;
+}
+
+a.link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Compact Form Group */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Compact Table */
+.table-compact {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.table-compact th,
+.table-compact td {
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.table-compact th {
+    background: var(--gray-50);
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.table-compact tbody tr:hover {
+    background: var(--gray-50);
+}
+
+/* Compact Icon Button */
+.btn-icon-sm {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+}
+
+/* Scrollbar Styling */
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: var(--radius-sm);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* Print Styles */
+@media print {
+    body {
+        font-size: 11px;
+    }
+    
+    .no-print,
+    header,
+    .header-actions,
+    .action-buttons,
+    .btn,
+    button {
+        display: none !important;
+    }
+    
+    .modal-content {
+        box-shadow: none;
+        border: none;
+    }
+}

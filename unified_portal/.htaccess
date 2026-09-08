@@ -1,7 +1,6 @@
 <IfModule mod_rewrite.c>
     Options -MultiViews
     RewriteEngine On
-    RewriteBase /wpu_medical-master/unified_portal/
 
     # Canonical URLs: GET *.php -> extensionless (POST stays on *.php so bodies are not lost on redirect)
     RewriteCond %{ENV:REDIRECT_STATUS} ^$

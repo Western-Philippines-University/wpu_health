@@ -105,6 +105,14 @@
                                         $rv_hist_stmt->execute([$module, $record['full_name']]);
                                     }
                                     $rv_history = $rv_hist_stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    require_once __DIR__ . '/../components/patient_record_quick_view_lib.php';
+                                    $rv_history_ids = array_map(static fn (array $h): int => (int) $h['id'], $rv_history);
+                                    $rv_edit_history = [];
+                                    try {
+                                        $rv_edit_history = patient_record_edit_history_for_records($pdo, $rv_history_ids);
+                                    } catch (Throwable $e) {
+                                        $rv_edit_history = [];
+                                    }
                             ?>
                             <div class="content-card record-view-page">
                                 <div class="record-view-toolbar">
@@ -367,9 +375,9 @@
                                         </h2>
                                         <p class="record-view-past-visits__hint">
                                             <?php if ($rv_hist_sid !== ''): ?>
-                                            All <?php echo htmlspecialchars(ucfirst((string) $module), ENT_QUOTES, 'UTF-8'); ?> visits for ID <?php echo htmlspecialchars($rv_hist_sid, ENT_QUOTES, 'UTF-8'); ?> (newest first). Open any row to view that visit. Search filters on the records list are kept when you switch visits.
+                                            All <?php echo htmlspecialchars(ucfirst((string) $module), ENT_QUOTES, 'UTF-8'); ?> visits for ID <?php echo htmlspecialchars($rv_hist_sid, ENT_QUOTES, 'UTF-8'); ?> (newest first). Open any row to view that visit. Under each visit, every saved prior version is listed — not only the last edit.
                                             <?php else: ?>
-                                            All <?php echo htmlspecialchars(ucfirst((string) $module), ENT_QUOTES, 'UTF-8'); ?> visits for this name (no student ID on file). Open a row to switch visits.
+                                            All <?php echo htmlspecialchars(ucfirst((string) $module), ENT_QUOTES, 'UTF-8'); ?> visits for this name (no student ID on file). Open a row to switch visits. Edit history under a visit lists every saved prior version.
                                             <?php endif; ?>
                                         </p>
                                         <?php if (count($rv_history) >= 1): ?>
@@ -405,6 +413,36 @@
                                                         Quick view
                                                     </button>
                                                 </div>
+                                                <?php
+                                                $rv_h_edits = $rv_edit_history[$rv_hid] ?? [];
+                                                if ($rv_h_edits !== []):
+                                                ?>
+                                                <ul class="record-view-history__edits" aria-label="Edit history for visit on <?php echo htmlspecialchars($rv_h_visit_fmt, ENT_QUOTES, 'UTF-8'); ?>">
+                                                    <?php foreach ($rv_h_edits as $rv_edit_i => $rv_edit):
+                                                        $rv_edit_id = (int) $rv_edit['id'];
+                                                        $rv_edit_at = $rv_edit['created_at'] ?? '';
+                                                        $rv_edit_at_fmt = $rv_edit_at !== '' ? date('M j, Y g:i A', strtotime($rv_edit_at)) : 'Unknown time';
+                                                        $rv_edit_by = trim((string) ($rv_edit['edited_by'] ?? ''));
+                                                        $rv_edit_n = count($rv_h_edits) - (int) $rv_edit_i;
+                                                    ?>
+                                                    <li class="record-view-history__edit">
+                                                        <div class="record-view-history__edit-main">
+                                                            <span class="record-view-history__edit-badge">Version <?php echo (int) $rv_edit_n; ?></span>
+                                                            <span class="record-view-history__edit-when"><?php echo htmlspecialchars($rv_edit_at_fmt, ENT_QUOTES, 'UTF-8'); ?></span>
+                                                            <span class="record-view-history__edit-meta">
+                                                                Saved before an edit<?php echo $rv_edit_by !== '' ? ' · '.htmlspecialchars($rv_edit_by, ENT_QUOTES, 'UTF-8') : ''; ?>
+                                                            </span>
+                                                        </div>
+                                                        <button type="button" class="btn btn-secondary btn-sm record-view-history__peek" onclick="openHistoryRecordSnapshotModal(<?php echo (int) $rv_hid; ?>, '<?php echo htmlspecialchars((string) $module, ENT_QUOTES, 'UTF-8'); ?>', <?php echo $rv_edit_id; ?>)" aria-label="View saved version from <?php echo htmlspecialchars($rv_edit_at_fmt, ENT_QUOTES, 'UTF-8'); ?>">
+                                                            <i class="fas fa-clock" aria-hidden="true"></i>
+                                                            View version
+                                                        </button>
+                                                    </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                                <?php elseif ($is_rv_current): ?>
+                                                <p class="record-view-history__edits-empty">No prior versions for this visit yet. Each time you edit and save, the previous version is added here.</p>
+                                                <?php endif; ?>
                                             </li>
                                             <?php endforeach; ?>
                                             </ul>

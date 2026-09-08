@@ -21,7 +21,8 @@ if (!defined('WPU_SYSTEM_INIT')) {
 }
 
 // Error reporting — production-safe defaults
-$wpuDebug = filter_var(getenv('APP_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+$wpuDebugRaw = $_ENV['APP_DEBUG'] ?? $_SERVER['APP_DEBUG'] ?? getenv('APP_DEBUG') ?: 'false';
+$wpuDebug = filter_var($wpuDebugRaw, FILTER_VALIDATE_BOOLEAN);
 error_reporting(E_ALL);
 ini_set('display_errors', $wpuDebug ? '1' : '0');
 ini_set('log_errors', '1');

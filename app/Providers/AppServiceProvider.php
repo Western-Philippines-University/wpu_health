@@ -24,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($root = config('app.url')) {
             URL::forceRootUrl(rtrim($root, '/'));
+            if (str_starts_with($root, 'https://')) {
+                URL::forceScheme('https');
+            }
         }
 
         if (config('app.debug') && config('database.default') === 'mysql') {

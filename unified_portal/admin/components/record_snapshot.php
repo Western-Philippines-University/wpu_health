@@ -1,21 +1,11 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-if (! isset($_SESSION['admin_username']) && function_exists('auth') && auth()->guard('admin')->check()) {
-    $_SESSION['admin_username'] = auth()->guard('admin')->user()->username;
-}
+require_once __DIR__ . '/../../includes/wpu_security.php';
+wpu_bootstrap_admin_api();
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
-
-if (! isset($_SESSION['admin_username'])) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
-    exit;
-}
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/patient_record_quick_view_lib.php';
@@ -23,6 +13,7 @@ $pdo = getDBConnection();
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $module = isset($_GET['module']) ? strtolower(trim((string) $_GET['module'])) : '';
+$revisionId = isset($_GET['revision_id']) ? (int) $_GET['revision_id'] : 0;
 
 if ($id <= 0 || ($module !== 'dental' && $module !== 'health')) {
     echo json_encode(['success' => false, 'message' => 'Invalid request']);
@@ -46,13 +37,30 @@ try {
         exit;
     }
 
-    [$payload, $isPrior] = patient_record_quick_view_resolve_for_modal($row);
+    if ($revisionId > 0) {
+        $rev = patient_record_edit_history_get($pdo, $revisionId, $id);
+        if ($rev === null) {
+            echo json_encode(['success' => false, 'message' => 'Version not found']);
+            exit;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'record' => $rev['payload'],
+            'quick_view_is_prior' => true,
+            'is_revision' => true,
+            'edited_by' => $rev['edited_by'],
+            'edited_at' => $rev['created_at'],
+        ]);
+        exit;
+    }
 
     echo json_encode([
         'success' => true,
-        'record' => $payload,
-        'quick_view_is_prior' => $isPrior,
+        'record' => patient_record_quick_view_payload_from_row($row),
+        'quick_view_is_prior' => false,
+        'is_revision' => false,
     ]);
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     echo json_encode(['success' => false, 'message' => 'Database error']);
 }

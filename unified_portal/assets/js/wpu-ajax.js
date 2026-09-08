@@ -16,13 +16,28 @@
     return method + ' ' + url + ' ' + body;
   }
 
+  function cloneResponse(response) {
+    try {
+      if (response && typeof response.clone === 'function') {
+        return response.clone();
+      }
+    } catch (e) {
+      // Body already consumed; caller will see the original error.
+    }
+    return response;
+  }
+
+  function shareResponse(promise) {
+    return promise.then(cloneResponse);
+  }
+
   function wpuFetch(input, init) {
     init = init || {};
     var key = requestKey(input, init);
     var dedupe = init.wpuDedupe !== false;
 
     if (dedupe && inflight.has(key)) {
-      return inflight.get(key);
+      return shareResponse(inflight.get(key));
     }
 
     if (!nativeFetch) {
@@ -71,7 +86,7 @@
       return promise;
     }
 
-    return run();
+    return shareResponse(run());
   }
 
   function debounce(key, fn, wait) {

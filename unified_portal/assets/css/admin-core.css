@@ -1728,7 +1728,7 @@ a.stat-card-link {
 }
 
 .record-view-past-visits .record-view-history {
-    max-height: min(50vh, 420px);
+    max-height: min(70vh, 640px);
 }
 
 .record-view-history {
@@ -1810,6 +1810,66 @@ a.stat-card-link {
     white-space: nowrap;
 }
 
+.record-view-history__edits {
+    list-style: none;
+    margin: 8px 0 0 12px;
+    padding: 0 0 0 12px;
+    border-left: 2px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.record-view-history__edit {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+}
+
+.record-view-history__edit-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.record-view-history__edit-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--gray-200);
+    color: var(--gray-700);
+    margin-right: 6px;
+}
+
+.record-view-history__edit-when {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gray-700);
+}
+
+.record-view-history__edit-meta {
+    display: block;
+    font-size: 12px;
+    color: var(--gray-600);
+    margin-top: 2px;
+}
+
+.record-view-history__edits-empty {
+    margin: 8px 0 0 12px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--gray-600);
+    line-height: 1.45;
+}
+
 @media (max-width: 520px) {
     .record-view-history__row {
         flex-direction: column;
@@ -1817,6 +1877,10 @@ a.stat-card-link {
     }
     .record-view-history__peek {
         align-self: stretch;
+    }
+    .record-view-history__edit {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 

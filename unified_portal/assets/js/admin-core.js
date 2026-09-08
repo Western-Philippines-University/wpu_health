@@ -566,6 +566,23 @@ function formatSnapshotVisitDate(iso) {
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function formatSnapshotDateTime(value) {
+    if (!value) return '';
+    var raw = String(value).trim();
+    var d = new Date(raw.replace(/-/g, '/'));
+    if (isNaN(d.getTime())) {
+        d = new Date(raw);
+    }
+    if (isNaN(d.getTime())) return raw;
+    return d.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+    });
+}
+
 function buildHistorySnapshotHtml(rec) {
     var esc = escapeHtml;
     function block(label, val) {
@@ -617,13 +634,15 @@ function buildHistorySnapshotHtml(rec) {
     return html;
 }
 
-function openHistoryRecordSnapshotModal(recordId, module) {
+function openHistoryRecordSnapshotModal(recordId, module, revisionId) {
     var body = document.getElementById('historyRecordSnapshotBody');
     var titleEl = document.getElementById('historyRecordSnapshotTitle');
     var openFull = document.getElementById('historyRecordSnapshotOpenFull');
     if (!body || !titleEl || !openFull) return;
-    titleEl.textContent = 'Loading visit…';
+    revisionId = revisionId ? parseInt(revisionId, 10) : 0;
+    titleEl.textContent = revisionId ? 'Loading version…' : 'Loading visit…';
     body.innerHTML = '<p style="color:var(--gray-600);margin:0;">Loading…</p>';
+    openFull.textContent = revisionId ? 'Open current record' : 'Open full record';
 
     var u = new URL(window.location.href);
     u.search = '';
@@ -638,7 +657,13 @@ function openHistoryRecordSnapshotModal(recordId, module) {
 
     ModalManager.open('historyRecordSnapshotModal');
 
-    fetch('components/record_snapshot.php?id=' + encodeURIComponent(recordId) + '&module=' + encodeURIComponent(module) + '&_=' + Date.now(), {
+    var snapUrl = 'components/record_snapshot.php?id=' + encodeURIComponent(recordId) + '&module=' + encodeURIComponent(module);
+    if (revisionId) {
+        snapUrl += '&revision_id=' + encodeURIComponent(revisionId);
+    }
+    snapUrl += '&_=' + Date.now();
+
+    fetch(snapUrl, {
         cache: 'no-store',
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
@@ -652,10 +677,18 @@ function openHistoryRecordSnapshotModal(recordId, module) {
             var rec = data.record;
             var vd = formatSnapshotVisitDate(rec.visit_date);
             var namePart = rec.full_name ? String(rec.full_name) : 'Visit snapshot';
-            titleEl.textContent = (vd ? vd + ' — ' : '') + namePart + (data.quick_view_is_prior ? ' (prior version)' : '');
-            var priorHint = data.quick_view_is_prior
-                ? '<p class="history-snapshot-prior-hint" role="note">Showing this visit as it was before the most recent edit. Open the full record for the current version.</p>'
-                : '';
+            var priorHint = '';
+            if (data.is_revision) {
+                var when = data.edited_at ? formatSnapshotDateTime(data.edited_at) : '';
+                var by = data.edited_by ? String(data.edited_by) : '';
+                titleEl.textContent = (when ? when + ' — ' : '') + namePart + ' (saved version)';
+                priorHint = '<p class="history-snapshot-prior-hint" role="note">Showing a saved version from before an edit'
+                    + (when ? ' on ' + escapeHtml(when) : '')
+                    + (by ? ' by ' + escapeHtml(by) : '')
+                    + '. The full record page shows the current version.</p>';
+            } else {
+                titleEl.textContent = (vd ? vd + ' — ' : '') + namePart;
+            }
             body.innerHTML = priorHint + buildHistorySnapshotHtml(rec);
         })
         .catch(function () {

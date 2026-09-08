@@ -39,7 +39,10 @@ if (!function_exists('wpu_legacy_load_root_env')) {
             [$name, $value] = explode('=', $line, 2);
             $name = trim($name);
             $value = trim($value);
-            if ($name === '' || getenv($name) !== false) {
+            if ($name === '') {
+                continue;
+            }
+            if (getenv($name) !== false || (isset($_ENV[$name]) && $_ENV[$name] !== '')) {
                 continue;
             }
             if (strlen($value) >= 2) {
@@ -51,31 +54,52 @@ if (!function_exists('wpu_legacy_load_root_env')) {
                     }
                 }
             }
-            putenv("{$name}={$value}");
+            if (function_exists('putenv')) {
+                putenv("{$name}={$value}");
+            }
             $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
         }
     }
 }
 wpu_legacy_load_root_env();
 
+if (!function_exists('wpu_env')) {
+    function wpu_env(string $key, ?string $default = null): ?string
+    {
+        if (array_key_exists($key, $_ENV) && $_ENV[$key] !== '') {
+            return (string) $_ENV[$key];
+        }
+        if (array_key_exists($key, $_SERVER) && is_string($_SERVER[$key]) && $_SERVER[$key] !== '') {
+            return $_SERVER[$key];
+        }
+        $value = getenv($key);
+        if ($value !== false && $value !== '') {
+            return $value;
+        }
+
+        return $default;
+    }
+}
+
 // Environment Configuration - Only define if not already defined (prefer root .env / getenv)
 if (!defined('DB_HOST')) {
-    $h = getenv('DB_HOST');
-    define('DB_HOST', ($h !== false && $h !== '') ? $h : 'localhost');
+    $h = wpu_env('DB_HOST');
+    define('DB_HOST', ($h !== null && $h !== '') ? $h : 'localhost');
 }
 if (!defined('DB_USER')) {
-    $u = getenv('DB_USERNAME');
-    define('DB_USER', ($u !== false && $u !== '') ? $u : 'root');
+    $u = wpu_env('DB_USERNAME');
+    define('DB_USER', ($u !== null && $u !== '') ? $u : 'root');
 }
 if (!defined('DB_PASS')) {
-    $p = getenv('DB_PASSWORD');
-    define('DB_PASS', $p !== false ? $p : '');
+    $p = wpu_env('DB_PASSWORD');
+    define('DB_PASS', $p ?? '');
 }
 
 // Unified Database Name - All modules now use single database
 if (!defined('DB_NAME')) {
-    $d = getenv('DB_DATABASE');
-    define('DB_NAME', ($d !== false && $d !== '') ? $d : 'health_records');
+    $d = wpu_env('DB_DATABASE');
+    define('DB_NAME', ($d !== null && $d !== '') ? $d : 'health_records');
 }
 
 // Charset
@@ -107,7 +131,7 @@ function getDBConnection(): PDO
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
 
-        $persistent = getenv('DB_PERSISTENT');
+        $persistent = function_exists('wpu_env') ? wpu_env('DB_PERSISTENT') : getenv('DB_PERSISTENT');
         if ($persistent === 'true' || $persistent === '1') {
             $options[PDO::ATTR_PERSISTENT] = true;
         }

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../includes/wpu_security.php';
 wpu_bootstrap_admin_api();
 // Database connection - Using unified database
 require_once '../../config/database.php';
+require_once __DIR__ . '/../../includes/pdo_activity_log.php';
 require_once __DIR__ . '/patient_record_quick_view_lib.php';
 $pdo = getDBConnection();
 
@@ -67,8 +68,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             } else {
                 $beforeRow = fetch_patient_record_for_quick_view($pdo, (int) $record_id);
                 $snapshotJson = $beforeRow ? patient_record_quick_view_encode_snapshot($beforeRow) : null;
+                $editor = (string) ($_SESSION['admin_username'] ?? '');
+                if ($editor === '' && defined('WPU_LARAVEL_ADMIN_USER')) {
+                    $editor = (string) WPU_LARAVEL_ADMIN_USER;
+                }
 
-                $stmt = $pdo->prepare("UPDATE patient_records SET 
+                patient_record_edit_history_ensure_table($pdo);
+                $pdo->beginTransaction();
+                try {
+                    if ($snapshotJson !== null) {
+                        patient_record_edit_history_append($pdo, (int) $record_id, $snapshotJson, $editor);
+                    }
+
+                    $stmt = $pdo->prepare("UPDATE patient_records SET 
                     patient_type_id = ?,
                     student_id = ?,
                     full_name = ?,
@@ -94,18 +106,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     visit_quick_snapshot = ?
                     WHERE id = ?");
                 
-                $stmt->execute([
-                    $patient_type_id, $student_id, $full_name, $gender, $age, $marital_status,
-                    $religion, $is_minor, $guardian_name, $phone_number, $address, $department_id,
-                    $visit_date, $case_type_id, $diagnosis, $treatment, $subjective, $objectives,
-                    $diagnostics, $assessment, $plan, $doctor, $snapshotJson, $record_id
-                ]);
+                    $stmt->execute([
+                        $patient_type_id, $student_id, $full_name, $gender, $age, $marital_status,
+                        $religion, $is_minor, $guardian_name, $phone_number, $address, $department_id,
+                        $visit_date, $case_type_id, $diagnosis, $treatment, $subjective, $objectives,
+                        $diagnostics, $assessment, $plan, $doctor, $snapshotJson, $record_id
+                    ]);
+                    $pdo->commit();
+                } catch (Throwable $e) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    throw $e;
+                }
+
+                if ($editor !== '' && function_exists('wpu_insert_activity_log')) {
+                    $modLabel = ucfirst((string) ($existing['module_type'] ?? 'record'));
+                    wpu_insert_activity_log($pdo, $editor, $modLabel.' record updated', 'Record ID: '.$record_id);
+                }
                 
                 $response['success'] = true;
                 $response['message'] = "Patient record updated successfully!";
             }
             
-        } catch (PDOException $e) {
+        } catch (Throwable $e) {
             $response['message'] = "Database error: " . $e->getMessage();
         }
     }

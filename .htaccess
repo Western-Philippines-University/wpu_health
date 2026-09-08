@@ -5,9 +5,6 @@
 
     RewriteEngine On
 
-    # Must match the folder name under htdocs (see APP_URL path).
-    RewriteBase /wpu_medical-master/
-
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
@@ -17,6 +14,8 @@
     # Block direct access to environment and dependency manifests
     RewriteRule ^\.env - [F,L]
     RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json)$ - [F,L]
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor)/ - [F,L]
+    RewriteRule ^(artisan|Dockerfile)$ - [F,L]
 
     # Legacy portal asset URLs → static files (avoid Laravel 500/HTML responses).
     RewriteRule ^portal/assets/(.*)$ unified_portal/assets/$1 [L]
@@ -24,6 +23,6 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     # Let unified_portal handle its own extensionless *.php routing (unified_portal/.htaccess).
-    RewriteCond %{REQUEST_URI} !^/wpu_medical-master/unified_portal/
+    RewriteCond %{REQUEST_URI} !/unified_portal/
     RewriteRule ^ index.php [L]
 </IfModule>
